@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supriyo's GitHub Pages</title>
+    <style>
+        body {
+            background-color: #111; /* Matte black background */
+            color: white; /* White text */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column; /* Align vertically */
+            justify-content: flex-start; /* Align to the top */
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+        }
+
+        h1 {
+            margin-top: 30px; /* Add some space from top */
+            font-size: 2.5em;
+            color: #fff;
+        }
+
+        .repo-list {
+            margin-top: 20px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px; /* Increased gap between the boxes */
+            justify-items: center; /* Center the boxes horizontally */
+            width: 80%; /* Control the width of the repo list */
+        }
+
+        .repo-item {
+            background-color: #333; /* Dark background for each repo item */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+        }
+
+        .repo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px 5px rgba(173, 216, 230, 1); /* Increased brightness of neon effect */
+        }
+
+        .repo-item h3 {
+            font-size: 1.5em;
+            color: #fff;
+        }
+
+        .repo-item a {
+            text-decoration: none;
+            color: #3498db; /* Blue links */
+            font-weight: bold;
+            font-size: 1.2em;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .github-logo {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg') no-repeat center center;
+            background-size: contain;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 1; /* Set opacity to 1 for maximum brightness */
+            border-radius: 50%; /* Make the logo circular */
+        }
+
+        .github-logo:hover {
+            transform: scale(1.1); /* Slight zoom effect */
+            box-shadow: 0 0 15px 5px rgba(173, 216, 230, 1); /* Neon effect */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Supriyo's GitHub Pages</h1>
+
+    <div class="repo-list" id="repoList"></div>
+
+    <!-- GitHub logo button -->
+    <div class="github-logo" onclick="window.open('https://github.com/supriyo8799', '_blank')"></div>
+
+    <script>
+        // GitHub username
+        const username = 'supriyo8799';
+
+        // Function to check if the repository has GitHub Pages enabled
+        function hasGitHubPages(repo) {
+            return repo.has_pages; // This flag is true if Pages is enabled for the repo
+        }
+
+        // Function to fetch README content
+        async function fetchRepoTitle(owner, repo) {
+            const url = `https://raw.githubusercontent.com/${owner}/${repo}/main/README.md`;
+
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                // Extract the first line as title
+                const title = text.split('\n')[0].replace('# ', '').trim();
+                return title;
+            } catch (error) {
+                console.error(`Error fetching README.md for ${repo}:`, error);
+                return repo; // If there is an error, use the repo name as the title
+            }
+        }
+
+        // Fetch repositories
+        fetch(`https://api.github.com/users/${username}/repos?per_page=100`)
+            .then(response => response.json())
+            .then(data => {
+                const repoList = document.getElementById('repoList');
+                data.forEach(async (repo) => {
+                    if (hasGitHubPages(repo) && repo.name !== 'Supriyo8799.github.io') { // Exclude 'Supriyo8799.github.io'
+                        const repoUrl = `https://${username}.github.io/${repo.name}/`;
+                        const repoName = await fetchRepoTitle(username, repo.name); // Fetch the title from README.md
+                        
+                        const repoElement = document.createElement('div');
+                        repoElement.classList.add('repo-item');
+                        repoElement.innerHTML = `
+                            <h3>${repoName}</h3>
+                        `;
+                        repoElement.onclick = () => window.open(repoUrl, '_blank'); // Open in new tab
+                        repoList.appendChild(repoElement);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching repositories:', error);
+            });
+    </script>
+
+</body>
+</html>
